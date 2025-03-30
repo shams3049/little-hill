@@ -52,3 +52,31 @@ export default tseslint.config({
   },
 })
 ```
+
+## Docker Instructions
+
+### Building the Docker Image
+
+To build the Docker image for this application, run the following command in the root of the repository:
+
+```sh
+docker build -t myapp .
+```
+
+### Running the Application with Docker
+
+To run the application using Docker, use the following command:
+
+```sh
+docker run -p 3000:80 myapp
+```
+
+### Developing with Docker
+
+To develop the application using Docker, use Docker Compose. Run the following command in the root of the repository:
+
+```sh
+docker-compose up
+```
+
+This will start the application and watch for changes in the source code. The application will be available at `http://localhost:3000`.
