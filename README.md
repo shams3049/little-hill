@@ -57,11 +57,13 @@ export default tseslint.config({
 
 ### Building the Docker Image
 
-To build the Docker image for this application, run the following command in the root of the repository:
+To build the Docker image for this application, run the following command in the root directory of the project:
 
 ```sh
 docker build -t myapp .
 ```
+
+Note: The dot (.) at the end of the command is important - it specifies the build context as the current directory.
 
 ### Running the Application with Docker
 
