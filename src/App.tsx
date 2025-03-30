@@ -53,49 +53,49 @@ const App = () => {
   return (
     <div className="min-h-screen h-screen w-screen flex flex-col bg-gray-100 p-4 overflow-hidden">
       <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="bg-white p-4 md:p-8 rounded-2xl shadow-xl border w-full max-w-4xl mx-auto flex flex-col items-center">
-          <h2 className="text-2xl font-bold mb-4">{title}</h2>
+        <div className="bg-white p-6 md:p-10 rounded-2xl shadow-lg border w-full max-w-3xl mx-auto flex flex-col items-center">
+          <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">{title}</h2>
           <div className="w-full flex-1 flex items-center justify-center">
-            <div className="w-full max-w-full max-h-[70vh] aspect-square">
+            <div className="w-full max-w-full max-h-[60vh] aspect-square">
               <Radar sectors={sectors} strengths={strengths} />
             </div>
           </div>
           <button
             onClick={() => setIsControlsExpanded(true)}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             Edit Radar
           </button>
         </div>
       </div>
-      
+
       {isControlsExpanded && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-gray-100 p-4 border-b flex justify-between items-center">
-              <h3 className="text-xl font-bold">Edit Radar</h3>
+              <h3 className="text-xl font-bold text-gray-800">Edit Radar</h3>
               <button 
                 onClick={() => setIsControlsExpanded(false)}
-                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 Close
               </button>
             </div>
-            <div className="p-4">
+            <div className="p-6">
               <input
-                className="text-xl font-semibold text-center border rounded p-2 w-full mb-4"
+                className="text-xl font-semibold text-center border rounded-lg p-3 w-full mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {sectors.map((sector, i) => (
-                  <div key={i} className="flex flex-col space-y-1 p-2 border rounded">
+                  <div key={i} className="flex flex-col space-y-3 p-4 border rounded-lg">
                     <input
                       type="text"
                       value={sector.name}
                       onChange={(e) => handleSectorChange(i, "name", e.target.value)}
                       placeholder="Sector Name"
-                      className="border rounded p-1"
+                      className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <input
                       type="file"
@@ -103,7 +103,7 @@ const App = () => {
                       onChange={(e) =>
                         e.target.files ? handleIconUpload(i, e.target.files[0]) : null
                       }
-                      className="border p-1"
+                      className="border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
                     <input
                       type="range"
@@ -116,9 +116,9 @@ const App = () => {
                         setPreviewStrengths(newStrengths);
                         setTimeout(() => setStrengths(newStrengths), 100);
                       }}
-                      className="w-full"
+                      className="w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
-                    <div className="text-center text-sm">
+                    <div className="text-center text-sm text-gray-600">
                       {Math.round((previewStrengths[i] / 9) * 100)}%
                     </div>
                   </div>
@@ -199,7 +199,7 @@ function Radar({ sectors, strengths }: { sectors: Sector[]; strengths: number[] 
               >
                 <title>{sector.icon}</title>
               </image>
-              <text x={textPos.x} y={textPos.y - 4} textAnchor="middle" fontSize="6">
+              <text x={textPos.x} y={textPos.y - 4} textAnchor="middle" fontSize="6" fill="#333">
                 {sector.name}
               </text>
             </g>
