@@ -2,12 +2,12 @@ import { useState } from "react";
 
 /* === Default Sectors from Provided Image === */
 const DEFAULT_SECTORS = [
-  { name: "Bewegung", icon: "bewegung.svg" },
-  { name: "Ernährung & Genuss", icon: "ernaehrung-genuss.svg" },
-  { name: "Stress & Erholung", icon: "stress-erholung.svg" },
-  { name: "Geist & Emotion", icon: "geist-emotion.svg" },
-  { name: "Lebenssinn & -qualität", icon: "lebenssinn-qualitaet.svg" },
-  { name: "Umwelt & Soziales", icon: "umwelt-soziales.svg" },
+  { name: "Bewegung", icon: "korperundbewegung.svg" },
+  { name: "Ernährung & Genuss", icon: "ErnahrungundGenuss.svg" },
+  { name: "Stress & Erholung", icon: "StressundErholung .svg" },
+  { name: "Geist & Emotion", icon: "GeistundEmotionen.svg" },
+  { name: "Lebenssinn & -qualität", icon: "Lebenssinnundqualitat.svg" },
+  { name: "Umwelt & Soziales", icon: "UmweltundSoziales.svg" },
 ];
 
 type Sector = {
@@ -51,19 +51,37 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <div className="max-w-full mx-auto">
-        <div className="bg-white p-8 rounded-2xl shadow-xl border">
+    <div className="min-h-screen h-screen w-screen flex flex-col bg-gray-100 p-4 overflow-hidden">
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="bg-white p-4 md:p-8 rounded-2xl shadow-xl border w-full max-w-4xl mx-auto flex flex-col items-center">
           <h2 className="text-2xl font-bold mb-4">{title}</h2>
-          <Radar sectors={sectors} strengths={strengths} />
+          <div className="w-full flex-1 flex items-center justify-center">
+            <div className="w-full max-w-full max-h-[70vh] aspect-square">
+              <Radar sectors={sectors} strengths={strengths} />
+            </div>
+          </div>
           <button
-            onClick={() => setIsControlsExpanded(!isControlsExpanded)}
+            onClick={() => setIsControlsExpanded(true)}
             className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Toggle Controls
+            Edit Radar
           </button>
-          {isControlsExpanded && (
-            <div className="mt-4 p-4 border rounded bg-gray-50">
+        </div>
+      </div>
+      
+      {isControlsExpanded && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gray-100 p-4 border-b flex justify-between items-center">
+              <h3 className="text-xl font-bold">Edit Radar</h3>
+              <button 
+                onClick={() => setIsControlsExpanded(false)}
+                className="px-3 py-1 bg-gray-200 hover:bg-gray-300 rounded"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-4">
               <input
                 className="text-xl font-semibold text-center border rounded p-2 w-full mb-4"
                 value={title}
@@ -107,9 +125,9 @@ const App = () => {
                 ))}
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
