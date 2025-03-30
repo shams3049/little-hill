@@ -1,5 +1,7 @@
+// === Imports and Dependencies ===
 import { useState } from "react";
 
+// === Default Sectors and Types ===
 /* === Default Sectors from Provided Image === */
 const DEFAULT_SECTORS = [
   { name: "Bewegung", icon: "korperundbewegung.svg" },
@@ -20,21 +22,22 @@ type CartesianPoint = {
   y: number;
 };
 
-// New helper function to determine icon path from assets folder
+// === Helper Functions ===
 function getIconPath(sector: Sector) {
-  // if a file was uploaded, sector.icon starts with "data:"
+  // Return data url if uploaded, otherwise use a static asset path.
   return sector.icon.startsWith("data:") ? sector.icon : `/assets/${sector.icon}`;
 }
 
+// === Main App Component ===
 const App = () => {
-  // Single radar state
+  // --- State Declarations ---
   const [title, setTitle] = useState("Wellness Radar");
   const [sectors, setSectors] = useState<Sector[]>(DEFAULT_SECTORS);
   const [strengths, setStrengths] = useState(Array(DEFAULT_SECTORS.length).fill(5));
   const [previewStrengths, setPreviewStrengths] = useState(strengths);
   const [isControlsExpanded, setIsControlsExpanded] = useState(false);
 
-  // Single radar helper functions
+  // --- Event Handlers ---
   const handleSectorChange = (index: number, field: keyof Sector, value: string) => {
     const updated = sectors.map((sector, i) =>
       i === index ? { ...sector, [field]: value } : sector
@@ -50,8 +53,10 @@ const App = () => {
     }
   };
 
+  // --- Render UI ---
   return (
     <div className="min-h-screen h-screen w-screen flex flex-col bg-gray-100 p-4 overflow-hidden">
+      {/* === Radar Display Section === */}
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="bg-white p-6 md:p-10 rounded-2xl shadow-lg border w-full max-w-3xl mx-auto flex flex-col items-center">
           <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">{title}</h2>
@@ -69,6 +74,7 @@ const App = () => {
         </div>
       </div>
 
+      {/* === Editing Controls Modal === */}
       {isControlsExpanded && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -90,6 +96,7 @@ const App = () => {
               <div className="space-y-6">
                 {sectors.map((sector, i) => (
                   <div key={i} className="flex flex-col space-y-3 p-4 border rounded-lg">
+                    {/* --- Sector Name Input --- */}
                     <input
                       type="text"
                       value={sector.name}
@@ -97,6 +104,7 @@ const App = () => {
                       placeholder="Sector Name"
                       className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
+                    {/* --- Icon Upload Input --- */}
                     <input
                       type="file"
                       accept="image/*"
@@ -105,6 +113,7 @@ const App = () => {
                       }
                       className="border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
+                    {/* --- Strength Range Input --- */}
                     <input
                       type="range"
                       min="0"
@@ -134,12 +143,13 @@ const App = () => {
 
 export default App;
 
-/* === Radar Component and Arc Utilities === */
+// === Radar Component and Supporting Utilities ===
 function Radar({ sectors, strengths }: { sectors: Sector[]; strengths: number[] }) {
   const totalAnglePerSector = 360 / sectors.length;
   const baseVisualGap = 6;
   const minPerimeterGap = 8;
 
+  // --- Gradient Color Helper ---
   const getGradientColor = (barIndex: number) => {
     const colors = [
       "#FF0000",
@@ -159,6 +169,7 @@ function Radar({ sectors, strengths }: { sectors: Sector[]; strengths: number[] 
   return (
     <div className="w-full aspect-square relative">
       <svg viewBox="0 0 200 200" className="absolute inset-0 w-full h-full">
+        {/* --- Center Marker --- */}
         <circle cx="100" cy="100" r="6" fill="#B0B0B0" />
         {sectors.map((sector, sectorIndex) => {
           const strength = strengths[sectorIndex] || 0;
@@ -190,6 +201,7 @@ function Radar({ sectors, strengths }: { sectors: Sector[]; strengths: number[] 
                   />
                 );
               })}
+              {/* --- Sector Icon --- */}
               <image 
                 href={getIconPath(sector)} 
                 x={iconPos.x - 6} 
@@ -199,6 +211,7 @@ function Radar({ sectors, strengths }: { sectors: Sector[]; strengths: number[] 
               >
                 <title>{sector.icon}</title>
               </image>
+              {/* --- Sector Name Label --- */}
               <text x={textPos.x} y={textPos.y - 4} textAnchor="middle" fontSize="6" fill="#333">
                 {sector.name}
               </text>
@@ -210,6 +223,7 @@ function Radar({ sectors, strengths }: { sectors: Sector[]; strengths: number[] 
   );
 }
 
+// --- Arc Description and Polar Conversion Helpers ---
 function describeArc(cx: number, cy: number, r: number, startAngle: number, endAngle: number) {
   const start: CartesianPoint = polarToCartesian(cx, cy, r, endAngle);
   const end: CartesianPoint = polarToCartesian(cx, cy, r, startAngle);
