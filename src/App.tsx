@@ -35,7 +35,6 @@ const App = () => {
   const [sectors, setSectors] = useState<Sector[]>(DEFAULT_SECTORS);
   const [strengths, setStrengths] = useState(Array(DEFAULT_SECTORS.length).fill(5));
   const [previewStrengths, setPreviewStrengths] = useState(strengths);
-  const [isControlsExpanded, setIsControlsExpanded] = useState(false);
 
   // --- Event Handlers ---
   const handleSectorChange = (index: number, field: keyof Sector, value: string) => {
@@ -56,87 +55,71 @@ const App = () => {
   // --- Render UI ---
   return (
     <div className="min-h-screen h-screen w-screen flex flex-col bg-gray-100 p-4 overflow-hidden">
-      {/* === Radar Display Section === */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="bg-white p-6 md:p-10 rounded-2xl shadow-lg border w-full max-w-3xl mx-auto flex flex-col items-center">
+      <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-6 max-w-7xl mx-auto w-full">
+        {/* === Radar Display Section === */}
+        <div className="bg-white p-6 md:p-10 rounded-2xl shadow-lg border-2 border-gray-300 w-full md:w-1/2 flex flex-col items-center">
           <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">{title}</h2>
           <div className="w-full flex-1 flex items-center justify-center">
             <div className="w-full max-w-full max-h-[60vh] aspect-square">
               <Radar sectors={sectors} strengths={strengths} />
             </div>
           </div>
-          <button
-            onClick={() => setIsControlsExpanded(true)}
-            className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            Edit Radar
-          </button>
         </div>
-      </div>
 
-      {/* === Editing Controls Modal === */}
-      {isControlsExpanded && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gray-100 p-4 border-b flex justify-between items-center">
-              <h3 className="text-xl font-bold text-gray-800">Edit Radar</h3>
-              <button 
-                onClick={() => setIsControlsExpanded(false)}
-                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400"
-              >
-                Close
-              </button>
-            </div>
-            <div className="p-6">
-              <input
-                className="text-xl font-semibold text-center border rounded-lg p-3 w-full mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-              <div className="space-y-6">
-                {sectors.map((sector, i) => (
-                  <div key={i} className="flex flex-col space-y-3 p-4 border rounded-lg">
-                    {/* --- Sector Name Input --- */}
-                    <input
-                      type="text"
-                      value={sector.name}
-                      onChange={(e) => handleSectorChange(i, "name", e.target.value)}
-                      placeholder="Sector Name"
-                      className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    {/* --- Icon Upload Input --- */}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        e.target.files ? handleIconUpload(i, e.target.files[0]) : null
-                      }
-                      className="border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    {/* --- Strength Range Input --- */}
-                    <input
-                      type="range"
-                      min="0"
-                      max="9"
-                      value={previewStrengths[i]}
-                      onChange={(e) => {
-                        const newStrengths = [...previewStrengths];
-                        newStrengths[i] = Number(e.target.value);
-                        setPreviewStrengths(newStrengths);
-                        setTimeout(() => setStrengths(newStrengths), 100);
-                      }}
-                      className="w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
-                    <div className="text-center text-sm text-gray-600">
-                      {Math.round((previewStrengths[i] / 9) * 100)}%
-                    </div>
+        {/* === Editing Controls Section === */}
+        <div className="bg-white rounded-2xl shadow-lg border-2 border-gray-300 w-full md:w-1/2 max-h-[80vh] overflow-y-auto">
+          <div className="sticky top-0 bg-gray-100 p-4 border-b">
+            <h3 className="text-xl font-bold text-gray-800 text-center">Edit Radar</h3>
+          </div>
+          <div className="p-6">
+            <input
+              className="text-xl font-semibold text-center border rounded-lg p-3 w-full mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <div className="space-y-6">
+              {sectors.map((sector, i) => (
+                <div key={i} className="flex flex-col space-y-3 p-4 border rounded-lg">
+                  {/* --- Sector Name Input --- */}
+                  <input
+                    type="text"
+                    value={sector.name}
+                    onChange={(e) => handleSectorChange(i, "name", e.target.value)}
+                    placeholder="Sector Name"
+                    className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  {/* --- Icon Upload Input --- */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      e.target.files ? handleIconUpload(i, e.target.files[0]) : null
+                    }
+                    className="border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  {/* --- Strength Range Input --- */}
+                  <input
+                    type="range"
+                    min="0"
+                    max="9"
+                    value={previewStrengths[i]}
+                    onChange={(e) => {
+                      const newStrengths = [...previewStrengths];
+                      newStrengths[i] = Number(e.target.value);
+                      setPreviewStrengths(newStrengths);
+                      setTimeout(() => setStrengths(newStrengths), 100);
+                    }}
+                    className="w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <div className="text-center text-sm text-gray-600">
+                    {Math.round((previewStrengths[i] / 9) * 100)}%
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
