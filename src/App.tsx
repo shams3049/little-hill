@@ -41,6 +41,47 @@ const App = () => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState(400);
+  const [loading, setLoading] = useState(false);
+
+  // Helper to fetch sheet data and update state
+  const fetchSheetData = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSd_OtpNKFWcpfgy2ac7GYehjQHf8MveVOSLKTU6G9hLbWR3BpGwA7yC8TiT7epRE9xIOhkha1H2Y6U/pub?gid=0&single=true&output=csv");
+      const csvText = await res.text();
+      const lines = csvText.trim().split(/\r?\n/);
+      const headers = lines[0].split(",").map(h => h.trim());
+      const valuesBySection: Record<string, number> = {};
+      for (let i = 1; i < lines.length; i++) {
+        const row = lines[i].split(",");
+        const rowObj: Record<string, string> = {};
+        headers.forEach((h, idx) => rowObj[h] = row[idx]);
+        if (rowObj.section && rowObj.value !== undefined) {
+          valuesBySection[rowObj.section] = Number(rowObj.value);
+        }
+      }
+      setSectors(
+        SECTION_KEYS.map(key => ({
+          name: SECTION_LABELS[key],
+          icon: SECTION_ICONS[key],
+        }))
+      );
+      setStrengths(
+        SECTION_KEYS.map(key => valuesBySection[key] ?? 2)
+      );
+    } catch (e) {
+      // fallback to default if error
+      setSectors(
+        SECTION_KEYS.map(key => ({
+          name: SECTION_LABELS[key],
+          icon: SECTION_ICONS[key],
+        }))
+      );
+      setStrengths(SECTION_KEYS.map(() => 2));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useLayoutEffect(() => {
     function updateSize() {
@@ -55,36 +96,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    async function fetchSheetData() {
-      try {
-        // Updated to fetch CSV from Google Sheets
-        const res = await fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSd_OtpNKFWcpfgy2ac7GYehjQHf8MveVOSLKTU6G9hLbWR3BpGwA7yC8TiT7epRE9xIOhkha1H2Y6U/pub?gid=0&single=true&output=csv");
-        const csvText = await res.text();
-        // Parse CSV: expects headers 'section,value' and rows like 'bewegung,7'
-        const lines = csvText.trim().split(/\r?\n/);
-        const headers = lines[0].split(",").map(h => h.trim());
-        const valuesBySection: Record<string, number> = {};
-        for (let i = 1; i < lines.length; i++) {
-          const row = lines[i].split(",");
-          const rowObj: Record<string, string> = {};
-          headers.forEach((h, idx) => rowObj[h] = row[idx]);
-          if (rowObj.section && rowObj.value !== undefined) {
-            valuesBySection[rowObj.section] = Number(rowObj.value);
-          }
-        }
-        setSectors(
-          SECTION_KEYS.map(key => ({
-            name: SECTION_LABELS[key],
-            icon: SECTION_ICONS[key],
-          }))
-        );
-        setStrengths(
-          SECTION_KEYS.map(key => valuesBySection[key] ?? 0)
-        );
-      } catch (e) {
-        // fallback to default if error
-      }
-    }
     fetchSheetData();
   }, []);
 
@@ -119,7 +130,14 @@ const App = () => {
         position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: '#fff', borderRadius: 4,
       }}>
-        <Radar sectors={sectors} strengths={strengths} size={radarBoxSize - 2 * radarPadding} padding={radarPadding} />
+        <Radar
+          sectors={sectors}
+          strengths={strengths}
+          size={radarBoxSize - 2 * radarPadding}
+          padding={radarPadding}
+          onInnerCircleClick={fetchSheetData}
+          loading={loading}
+        />
         {sectors.map((sector, sectorIndex) => {
           const baseAngle = -90 + sectorIndex * totalAnglePerSector;
           const labelAngle = baseAngle + totalAnglePerSector / 2;
@@ -206,7 +224,7 @@ const App = () => {
 
 export default App;
 
-function Radar({ sectors, strengths, size, padding }: { sectors: Sector[]; strengths: number[]; size: number; padding: number }) {
+function Radar({ sectors, strengths, size, padding, onInnerCircleClick, loading }: { sectors: Sector[]; strengths: number[]; size: number; padding: number; onInnerCircleClick: () => void; loading: boolean }) {
   const totalAnglePerSector = 360 / sectors.length;
   const baseVisualGap = 8;
   const minPerimeterGap = 10;
@@ -229,9 +247,9 @@ function Radar({ sectors, strengths, size, padding }: { sectors: Sector[]; stren
       <svg viewBox={`0 0 ${200 + (padding * 2) / (size / 400)} ${200 + (padding * 2) / (size / 400)}`}
         style={{ width: '100%', height: '100%', display: 'block' }}>
         <g transform={`translate(${padding / (size / 400)},${padding / (size / 400)})`}>
-          <circle cx="100" cy="100" r={centerCircleRadius} fill="#B0B0B0" />
+          <circle cx="100" cy="100" r={centerCircleRadius} fill="#B0B0B0" onClick={onInnerCircleClick} style={{ cursor: 'pointer' }} />
           <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="18" fontWeight="bold" fill={avgColor}>
-            {avgPercent}%
+            {loading ? "..." : `${avgPercent}%`}
           </text>
           {sectors.map((sector, sectorIndex) => {
             const strength = strengths[sectorIndex] || 0;
