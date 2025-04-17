@@ -90,9 +90,7 @@ const App = () => {
         setContainerSize(Math.min(rect.width, rect.height));
       }
     }
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
+    updateSize(); // size fixed after initial render; no resize listener
   }, []);
 
   useEffect(() => {
@@ -116,28 +114,45 @@ const App = () => {
   };
 
   const totalAnglePerSector = 360 / sectors.length;
-  const radarBoxSize = containerSize;
+  const marginIncreaseFactor = 0.05;
+  const basePaddingFactor = 0.106;
+  const basePadding = containerSize * basePaddingFactor;
+  const chartSize = containerSize - 2 * basePadding;
+  const radarBoxSize = containerSize + containerSize * marginIncreaseFactor;
   const radarCenter = radarBoxSize / 2;
-  const radarPadding = radarBoxSize * 0.06;
+  const radarPadding = basePadding;
+  const iconMarginFactor = 0.27;
 
   return (
     <Box sx={{
-      width: '100vw', height: '100vh', bgcolor: 'grey.100', m: 0, p: 0,
+      width: '100vw', height: '100vh', bgcolor: 'white', m: 0, p: 0,
       display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative',
     }}>
       <Box ref={containerRef} sx={{
-        width: '90vw', height: '90vh', maxWidth: 700, maxHeight: 700, minWidth: 320, minHeight: 320,
-        position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: '#fff', borderRadius: 4,
+        width: radarBoxSize,
+        height: radarBoxSize,
+        position: "relative",
+        background: "#fff",
+        borderRadius: 4,
       }}>
-        <Radar
-          sectors={sectors}
-          strengths={strengths}
-          size={radarBoxSize - 2 * radarPadding}
-          padding={radarPadding}
-          onInnerCircleClick={fetchSheetData}
-          loading={loading}
-        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <Radar
+            sectors={sectors}
+            strengths={strengths}
+            size={chartSize}
+            padding={radarPadding}
+            onInnerCircleClick={fetchSheetData}
+            loading={loading}
+          />
+        </Box>
         {sectors.map((sector, sectorIndex) => {
           const baseAngle = -90 + sectorIndex * totalAnglePerSector;
           const labelAngle = baseAngle + totalAnglePerSector / 2;
@@ -149,7 +164,7 @@ const App = () => {
           const iconBoxWidth = Math.max(64, radarBoxSize * 0.18);
           const iconBoxHeight = Math.max(48, radarBoxSize * 0.13);
           const iconSize = Math.max(24, radarBoxSize * 0.07);
-          const margin = radarBoxSize * 0.03;
+          const margin = radarBoxSize * iconMarginFactor;
           const iconRadius = maxBarRadius + (Math.max(iconBoxWidth, iconBoxHeight) / 2) + margin;
           const pos = polarToCartesian(radarCenter, radarCenter, iconRadius, labelAngle);
           const isEditing = editingIndex === sectorIndex;
@@ -162,7 +177,7 @@ const App = () => {
               minHeight: iconBoxHeight,
               maxWidth: 160,
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-              bgcolor: isEditing ? '#e3f2fd' : 'white', boxShadow: 3, zIndex: 10,
+              bgcolor: 'white', boxShadow: 'none', zIndex: 10,
               borderRadius: 2, p: 1,
               cursor: isEditing ? 'default' : 'pointer',
               transition: 'all 0.2s',
