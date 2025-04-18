@@ -1,84 +1,19 @@
 # React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is ready for deployment on Vercel as a static site using Vite.
 
-Currently, two official plugins are available:
+## Local Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Install dependencies: `npm install`
+- Start dev server: `npm run dev`
+- Build for production: `npm run build`
 
-## Expanding the ESLint configuration
+## Vercel Deployment
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- The project is configured for Vercel static hosting with `vercel.json` and Vite.
+- No Docker or server configuration is needed.
+- All static assets are in `public/` and referenced in the app.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-
-## Docker Instructions
-
-### Building the Docker Image
-
-To build the Docker image for this application, run the following command in the root directory of the project:
-
-```sh
-docker build -t myapp .
-```
-
-Note: The dot (.) at the end of the command is important - it specifies the build context as the current directory.
-
-### Running the Application with Docker
-
-To run the application using Docker, use the following command:
-
-```sh
-docker run -p 3000:80 myapp
-```
-
-### Developing with Docker
-
-To develop the application using Docker, use Docker Compose. Run the following command in the root of the repository:
-
-```sh
-docker-compose up
-```
-
-This will start the application and watch for changes in the source code. The application will be available at `http://localhost:3000`.
+*This README was cleaned up for clarity. Docker instructions and unrelated setup were removed.*
