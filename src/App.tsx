@@ -38,22 +38,22 @@ function getIconPath(sector: Sector) {
 // --- DESIGN & LAYOUT VARIABLES (Adjust here for easy tuning) ---
 const DESIGN = {
   // Sizing factors
-  containerDefault: 400, // default container size (px)
-  marginIncreaseFactor: 0.05, // extra margin around radar chart
-  basePaddingFactor: 0.106, // padding as % of container
+  containerDefault: 300, // default container size (px)
+  marginIncreaseFactor: 0.01, // extra margin around radar chart
+  basePaddingFactor: 0.1, // padding as % of container
   iconMarginFactor: 0.27, // icon distance from radar
   // Icon & label sizes
-  iconBoxWidthMin: 64,
-  iconBoxHeightMin: 48,
+  iconBoxWidthMin: 34,
+  iconBoxHeightMin: 18,
   iconBoxWidthFactor: 0.18, // as % of radarBoxSize
   iconBoxHeightFactor: 0.13, // as % of radarBoxSize
   iconSizeMin: 24,
   iconSizeFactor: 0.07, // as % of radarBoxSize
   // Radar chart
   centerCircleRadius: 28, // base radius (scaled)
-  barThickness: 8, // base thickness (scaled)
-  barGap: 2, // gap between bars (scaled)
-  barStartGap: 4, // gap after center (scaled)
+  barThickness: 9, // base thickness (scaled)
+  barGap: 1, // gap between bars (scaled)
+  barStartGap: 0, // gap after center (scaled)
   maxStrength: 9, // number of bars per sector
   // Colors
   barColors: [
@@ -250,7 +250,7 @@ const App = () => {
               ) : (
                 <>
                   <img src={getIconPath(sector)} alt={sector.name} style={{ width: iconSize, height: iconSize, marginBottom: 4 }} />
-                  <Typography variant="caption" align="center" sx={{ fontSize: Math.max(10, radarBoxSize * 0.025), fontWeight: 500 }}>
+                  <Typography variant="caption" align="center" sx={{ fontSize: Math.max(10, radarBoxSize * 0.025), fontWeight: 500, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', width: '100%' }}>
                     {sector.name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: Math.max(10, radarBoxSize * 0.025) }}>
