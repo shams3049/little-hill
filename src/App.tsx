@@ -35,12 +35,43 @@ function getIconPath(sector: Sector) {
   return sector.icon.startsWith("data:") ? sector.icon : `/assets/${sector.icon}`;
 }
 
+// --- DESIGN & LAYOUT VARIABLES (Adjust here for easy tuning) ---
+const DESIGN = {
+  // Sizing factors
+  containerDefault: 400, // default container size (px)
+  marginIncreaseFactor: 0.05, // extra margin around radar chart
+  basePaddingFactor: 0.106, // padding as % of container
+  iconMarginFactor: 0.27, // icon distance from radar
+  // Icon & label sizes
+  iconBoxWidthMin: 64,
+  iconBoxHeightMin: 48,
+  iconBoxWidthFactor: 0.18, // as % of radarBoxSize
+  iconBoxHeightFactor: 0.13, // as % of radarBoxSize
+  iconSizeMin: 24,
+  iconSizeFactor: 0.07, // as % of radarBoxSize
+  // Radar chart
+  centerCircleRadius: 28, // base radius (scaled)
+  barThickness: 8, // base thickness (scaled)
+  barGap: 2, // gap between bars (scaled)
+  barStartGap: 4, // gap after center (scaled)
+  maxStrength: 9, // number of bars per sector
+  // Colors
+  barColors: [
+    "#FF0000", "#FF4000", "#FF8000", "#FFBF00", "#BFFF00", "#80FF00", "#40FF00", "#20C000", "#006400",
+  ],
+  barInactive: "#E0E0E0",
+  centerCircle: "#B0B0B0",
+  // Gaps
+  baseVisualGap: 8,
+  minPerimeterGap: 10,
+};
+
 const App = () => {
   const [sectors, setSectors] = useState<Sector[]>([]);
   const [strengths, setStrengths] = useState<number[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerSize, setContainerSize] = useState(400);
+  const [containerSize, setContainerSize] = useState(DESIGN.containerDefault);
   const [loading, setLoading] = useState(false);
 
   // Helper to fetch sheet data and update state
@@ -113,15 +144,13 @@ const App = () => {
     if (file) reader.readAsDataURL(file);
   };
 
+  // Layout calculations based on DESIGN variables
   const totalAnglePerSector = 360 / sectors.length;
-  const marginIncreaseFactor = 0.05;
-  const basePaddingFactor = 0.106;
-  const basePadding = containerSize * basePaddingFactor;
+  const basePadding = containerSize * DESIGN.basePaddingFactor;
   const chartSize = containerSize - 2 * basePadding;
-  const radarBoxSize = containerSize + containerSize * marginIncreaseFactor;
+  const radarBoxSize = containerSize + containerSize * DESIGN.marginIncreaseFactor;
   const radarCenter = radarBoxSize / 2;
   const radarPadding = basePadding;
-  const iconMarginFactor = 0.27;
 
   return (
     <Box sx={{
@@ -156,15 +185,15 @@ const App = () => {
         {sectors.map((sector, sectorIndex) => {
           const baseAngle = -90 + sectorIndex * totalAnglePerSector;
           const labelAngle = baseAngle + totalAnglePerSector / 2;
-          const scale = (radarBoxSize - 2 * radarPadding) / 400;
-          const centerCircleRadius = 28 * scale;
-          const barThickness = 8 * scale;
-          const barStartRadius = centerCircleRadius + barThickness + 4 * scale;
-          const maxBarRadius = barStartRadius + (9 - 1) * (barThickness + 2 * scale);
-          const iconBoxWidth = Math.max(64, radarBoxSize * 0.18);
-          const iconBoxHeight = Math.max(48, radarBoxSize * 0.13);
-          const iconSize = Math.max(24, radarBoxSize * 0.07);
-          const margin = radarBoxSize * iconMarginFactor;
+          const scale = (radarBoxSize - 2 * radarPadding) / DESIGN.containerDefault;
+          const centerCircleRadius = DESIGN.centerCircleRadius * scale;
+          const barThickness = DESIGN.barThickness * scale;
+          const barStartRadius = centerCircleRadius + barThickness + DESIGN.barStartGap * scale;
+          const maxBarRadius = barStartRadius + (DESIGN.maxStrength - 1) * (barThickness + DESIGN.barGap * scale);
+          const iconBoxWidth = Math.max(DESIGN.iconBoxWidthMin, radarBoxSize * DESIGN.iconBoxWidthFactor);
+          const iconBoxHeight = Math.max(DESIGN.iconBoxHeightMin, radarBoxSize * DESIGN.iconBoxHeightFactor);
+          const iconSize = Math.max(DESIGN.iconSizeMin, radarBoxSize * DESIGN.iconSizeFactor);
+          const margin = radarBoxSize * DESIGN.iconMarginFactor;
           const iconRadius = maxBarRadius + (Math.max(iconBoxWidth, iconBoxHeight) / 2) + margin;
           const pos = polarToCartesian(radarCenter, radarCenter, iconRadius, labelAngle);
           const isEditing = editingIndex === sectorIndex;
@@ -206,7 +235,7 @@ const App = () => {
                   </Box>
                   <Slider
                     min={0}
-                    max={9}
+                    max={DESIGN.maxStrength}
                     value={strengths[sectorIndex]}
                     onChange={(_, value) => handleStrengthChange(sectorIndex, Number(value))}
                     valueLabelDisplay="auto"
@@ -225,7 +254,7 @@ const App = () => {
                     {sector.name}
                   </Typography>
                   <Typography variant="caption" color="text.secondary" sx={{ fontSize: Math.max(10, radarBoxSize * 0.025) }}>
-                    {Math.round((strengths[sectorIndex] / 9) * 100)}%
+                    {Math.round((strengths[sectorIndex] / DESIGN.maxStrength) * 100)}%
                   </Typography>
                 </>
               )}
@@ -241,28 +270,21 @@ export default App;
 
 function Radar({ sectors, strengths, size, padding, onInnerCircleClick, loading }: { sectors: Sector[]; strengths: number[]; size: number; padding: number; onInnerCircleClick: () => void; loading: boolean }) {
   const totalAnglePerSector = 360 / sectors.length;
-  const baseVisualGap = 8;
-  const minPerimeterGap = 10;
-  const barThickness = 8 * (size / 400);
-  const centerCircleRadius = 28 * (size / 400);
-  const barStartRadius = centerCircleRadius + barThickness + 4 * (size / 400);
-  const maxBarRadius = barStartRadius + (9 - 1) * (barThickness + 2 * (size / 400));
-  const getGradientColor = (barIndex: number) => {
-    const colors = [
-      "#FF0000", "#FF4000", "#FF8000", "#FFBF00", "#BFFF00", "#80FF00", "#40FF00", "#20C000", "#006400",
-    ];
-    return colors[Math.min(barIndex, colors.length - 1)];
-  };
-  const maxStrength = 9;
+  const barThickness = DESIGN.barThickness * (size / DESIGN.containerDefault);
+  const centerCircleRadius = DESIGN.centerCircleRadius * (size / DESIGN.containerDefault);
+  const barStartRadius = centerCircleRadius + barThickness + DESIGN.barStartGap * (size / DESIGN.containerDefault);
+  const maxBarRadius = barStartRadius + (DESIGN.maxStrength - 1) * (barThickness + DESIGN.barGap * (size / DESIGN.containerDefault));
+  const getGradientColor = (barIndex: number) => DESIGN.barColors[Math.min(barIndex, DESIGN.barColors.length - 1)];
+  const maxStrength = DESIGN.maxStrength;
   const avg = strengths.reduce((a, b) => a + b, 0) / strengths.length;
   const avgPercent = Math.round((avg / maxStrength) * 100);
   const avgColor = `rgb(${255 - Math.round(2.55 * avgPercent)},${Math.round(2.55 * avgPercent)},0)`;
   return (
     <div style={{ width: '100%', height: '100%', aspectRatio: '1 / 1', position: 'relative' }}>
-      <svg viewBox={`0 0 ${200 + (padding * 2) / (size / 400)} ${200 + (padding * 2) / (size / 400)}`}
+      <svg viewBox={`0 0 ${200 + (padding * 2) / (size / DESIGN.containerDefault)} ${200 + (padding * 2) / (size / DESIGN.containerDefault)}`}
         style={{ width: '100%', height: '100%', display: 'block' }}>
-        <g transform={`translate(${padding / (size / 400)},${padding / (size / 400)})`}>
-          <circle cx="100" cy="100" r={centerCircleRadius} fill="#B0B0B0" onClick={onInnerCircleClick} style={{ cursor: 'pointer' }} />
+        <g transform={`translate(${padding / (size / DESIGN.containerDefault)},${padding / (size / DESIGN.containerDefault)})`}>
+          <circle cx="100" cy="100" r={centerCircleRadius} fill={DESIGN.centerCircle} onClick={onInnerCircleClick} style={{ cursor: 'pointer' }} />
           <text x="100" y="100" textAnchor="middle" dominantBaseline="middle" fontSize="18" fontWeight="bold" fill={avgColor}>
             {loading ? "..." : `${avgPercent}%`}
           </text>
@@ -273,10 +295,10 @@ function Radar({ sectors, strengths, size, padding, onInnerCircleClick, loading 
             const sectorColor = getGradientColor(outerBarIndex);
             return (
               <g key={sectorIndex}>
-                {Array.from({ length: 9 }, (_, barIndex) => {
-                  const r = barStartRadius + barIndex * (barThickness + 2 * (size / 400));
-                  const perimeterGap = (360 * minPerimeterGap) / (2 * Math.PI * r);
-                  const effectiveGap = Math.max(baseVisualGap, perimeterGap);
+                {Array.from({ length: DESIGN.maxStrength }, (_, barIndex) => {
+                  const r = barStartRadius + barIndex * (barThickness + DESIGN.barGap * (size / DESIGN.containerDefault));
+                  const perimeterGap = (360 * DESIGN.minPerimeterGap) / (2 * Math.PI * r);
+                  const effectiveGap = Math.max(DESIGN.baseVisualGap, perimeterGap);
                   const sectorAngle = totalAnglePerSector - effectiveGap;
                   const startAngle = baseAngle + effectiveGap / 2;
                   const endAngle = startAngle + sectorAngle;
@@ -285,7 +307,7 @@ function Radar({ sectors, strengths, size, padding, onInnerCircleClick, loading 
                     <path
                       key={barIndex}
                       d={describeArc(100, 100, r, startAngle, endAngle)}
-                      stroke={active ? sectorColor : "#E0E0E0"}
+                      stroke={active ? sectorColor : DESIGN.barInactive}
                       strokeWidth={barThickness}
                       fill="none"
                       strokeLinecap="round"
